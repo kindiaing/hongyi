@@ -20,6 +20,9 @@ class MainContract extends Model
         'party_a_contact',
         'party_a_phone',
         'party_b_name',
+        'party_b_manager_name',
+        'party_b_manager_phone',
+        'service_unit_id',
         'total_amount',
         'signed_date',
         'start_date',
@@ -65,5 +68,10 @@ class MainContract extends Model
     public function managers(): HasMany
     {
         return $this->hasMany(MainContractManager::class, 'main_contract_id');
+    }
+
+    public function serviceUnit(): BelongsTo
+    {
+        return $this->belongsTo(ServiceUnit::class, 'service_unit_id');
     }
 }

@@ -42,6 +42,7 @@ class SubContractForm extends Component
             'form.contract_no' => 'required|string|max:100|unique:sub_contracts,contract_no,' . $this->contractId,
             'form.contract_name' => 'required|string|max:255',
             'form.vendor_id' => 'required|exists:vendors,id',
+            'form.service_unit_id' => 'nullable|integer|exists:service_units,id',
             'form.contract_type' => 'required|string|max:50',
             'form.sub_amount' => 'required|numeric|min:0',
             'form.signed_date' => 'nullable|date',
@@ -202,6 +203,7 @@ class SubContractForm extends Component
                   ->orWhereDoesntHave('roles');
             })
             ->get();
+        $serviceUnits = \App\Models\ServiceUnit::orderBy('name')->get();
 
         return view('livewire.contract.sub-contract-form', [
             'statusOptions' => $statusOptions,
@@ -211,6 +213,7 @@ class SubContractForm extends Component
             'attachments' => $attachments,
             'projectManagers' => $projectManagers,
             'availablePersonnel' => $availablePersonnel,
+            'serviceUnits' => $serviceUnits,
         ]);
     }
 }

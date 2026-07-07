@@ -76,6 +76,7 @@
                     @if(in_array('sla_level', $visibleColumns))<th class="px-4 py-3">SLA</th>@endif
                     @if(in_array('status', $visibleColumns))<th class="px-4 py-3">状态</th>@endif
                     @if(in_array('service_scope', $visibleColumns))<th class="px-4 py-3">服务范围</th>@endif
+                    @if(in_array('service_unit', $visibleColumns))<th class="px-4 py-3">服务单位</th>@endif
                     @if(in_array('managers', $visibleColumns))<th class="px-4 py-3">项目经理</th>@endif
                     @if(in_array('personnel', $visibleColumns))<th class="px-4 py-3">关联人员</th>@endif
                     @if(in_array('created_at', $visibleColumns))<th class="px-4 py-3">创建时间</th>@endif
@@ -123,6 +124,9 @@
                             <td class="px-4 py-3 max-w-xs truncate" title="{{ $contract->service_scope }}">
                                 {{ Str::limit($contract->service_scope, 30) ?? '-' }}
                             </td>
+                        @endif
+                        @if(in_array('service_unit', $visibleColumns))
+                            <td class="px-4 py-3">{{ $contract->serviceUnit?->name ?? '-' }}</td>
                         @endif
                         @if(in_array('managers', $visibleColumns))
                             <td class="px-4 py-3">

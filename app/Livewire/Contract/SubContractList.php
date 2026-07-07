@@ -45,6 +45,7 @@ class SubContractList extends Component
             'sla_level' => ['label' => 'SLA等级', 'default' => false],
             'status' => ['label' => '合同状态', 'default' => true],
             'service_scope' => ['label' => '服务范围', 'default' => false],
+            'service_unit' => ['label' => '服务单位', 'default' => true],
             'managers' => ['label' => '项目经理', 'default' => false],
             'personnel' => ['label' => '关联人员', 'default' => false],
             'created_at' => ['label' => '创建时间', 'default' => false],
@@ -87,7 +88,7 @@ class SubContractList extends Component
 
     public function render()
     {
-        $query = SubContract::query()->with(['mainContract', 'vendor', 'creator', 'managers.user', 'personnel.user']);
+        $query = SubContract::query()->with(['mainContract', 'vendor', 'creator', 'managers.user', 'personnel.user', 'serviceUnit']);
 
         // Data scope filtering
         $user = auth()->user();
@@ -101,8 +102,8 @@ class SubContractList extends Component
             } elseif ($user->hasRole('viewer')) {
                 // viewer sees all
             } elseif ($user->hasRole('service_unit')) {
-                // service unit doesn't see sub-contracts directly
-                $query->whereRaw('1=0');
+                // service unit sees sub-contracts for their service unit
+                $query->where('service_unit_id', $user->service_unit_id);
             }
         }
 
@@ -124,11 +125,13 @@ class SubContractList extends Component
         $contracts = $query->latest()->paginate(15);
         $statusOptions = DataDictionary::where('category', 'contract_status')->pluck('name', 'code');
         $mainContracts = MainContract::select('id', 'contract_name')->get();
+        $serviceUnits = \App\Models\ServiceUnit::orderBy('name')->get();
 
         return view('livewire.contract.sub-contract-list', [
             'contracts' => $contracts,
             'statusOptions' => $statusOptions,
             'mainContracts' => $mainContracts,
+            'serviceUnits' => $serviceUnits,
         ]);
     }
 }

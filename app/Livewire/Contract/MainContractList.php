@@ -41,12 +41,14 @@ class MainContractList extends Component
             'party_a_contact' => ['label' => '甲方联系人', 'default' => false],
             'party_a_phone' => ['label' => '甲方电话', 'default' => false],
             'party_b_name' => ['label' => '乙方名称', 'default' => true],
+            'party_b_manager' => ['label' => '乙方管理人', 'default' => false],
             'total_amount' => ['label' => '合同金额', 'default' => true],
             'signed_date' => ['label' => '签订日期', 'default' => true],
             'start_date' => ['label' => '生效日期', 'default' => true],
             'end_date' => ['label' => '到期日期', 'default' => true],
             'status' => ['label' => '合同状态', 'default' => true],
             'service_scope' => ['label' => '服务范围', 'default' => false],
+            'service_unit' => ['label' => '服务单位', 'default' => true],
             'managers' => ['label' => '项目经理', 'default' => false],
             'created_at' => ['label' => '创建时间', 'default' => false],
         ];
@@ -90,7 +92,7 @@ class MainContractList extends Component
 
     public function render()
     {
-        $query = MainContract::query()->with('managers.user');
+        $query = MainContract::query()->with('managers.user', 'serviceUnit');
 
         // Data scope filtering
         $user = auth()->user();
@@ -105,8 +107,8 @@ class MainContractList extends Component
             } elseif ($user->hasRole('viewer')) {
                 // viewer sees all but read-only
             } elseif ($user->hasRole('service_unit')) {
-                // service unit doesn't see main contracts directly
-                $query->whereRaw('1=0');
+                // service unit only sees contracts for their service unit
+                $query->where('service_unit_id', $user->service_unit_id);
             }
         }
 
@@ -133,10 +135,12 @@ class MainContractList extends Component
 
         $contracts = $query->with('creator')->latest()->paginate(15);
         $statusOptions = DataDictionary::where('category', 'contract_status')->pluck('name', 'code');
+        $serviceUnits = \App\Models\ServiceUnit::orderBy('name')->get();
 
         return view('livewire.contract.main-contract-list', [
             'contracts' => $contracts,
             'statusOptions' => $statusOptions,
+            'serviceUnits' => $serviceUnits,
         ]);
     }
 }

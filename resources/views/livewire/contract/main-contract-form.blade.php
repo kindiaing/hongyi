@@ -28,6 +28,22 @@
                 @error('form.party_b_name') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
             </div>
             <div>
+                <flux:input wire:model="form.party_b_manager_name" label="乙方管理人" placeholder="乙方负责人姓名" />
+            </div>
+            <div>
+                <flux:input wire:model="form.party_b_manager_phone" label="乙方管理人电话" placeholder="联系电话" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">服务单位</label>
+                <select wire:model="form.service_unit_id" class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm">
+                    <option value="">-- 请选择服务单位 --</option>
+                    @foreach($serviceUnits as $su)
+                    <option value="{{ $su->id }}">{{ $su->name }}</option>
+                    @endforeach
+                </select>
+                @error('form.service_unit_id') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
+            </div>
+            <div>
                 <flux:input wire:model="form.party_a_contact" label="甲方联系人" />
             </div>
             <div>

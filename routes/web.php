@@ -30,6 +30,7 @@ use App\Livewire\System\DataDictionaryForm;
 use App\Livewire\System\UserList;
 use App\Livewire\System\UserForm;
 use App\Livewire\System\OperationLogList;
+use App\Livewire\System\AuditConfigList;
 use App\Livewire\System\RoleList;
 
 Route::view('/', 'welcome')->name('home');
@@ -101,7 +102,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/users/create', UserForm::class)->name('users.create');
         Route::get('/users/{id}/edit', UserForm::class)->name('users.edit');
         Route::get('/logs', OperationLogList::class)->name('logs.index');
-        // Route::get('/audit-configs', AuditConfigList::class)->name('audit_configs.index');
+        Route::get('/audit-configs', AuditConfigList::class)->name('audit_configs.index');
         Route::get('/roles', RoleList::class)->name('roles.index');
     });
 });

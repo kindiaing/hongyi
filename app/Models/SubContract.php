@@ -18,6 +18,7 @@ class SubContract extends Model
         'contract_no',
         'contract_name',
         'vendor_id',
+        'service_unit_id',
         'contract_type',
         'maintenance_type',
         'sub_amount',
@@ -75,5 +76,10 @@ class SubContract extends Model
     public function managers(): HasMany
     {
         return $this->hasMany(SubContractManager::class, 'sub_contract_id');
+    }
+
+    public function serviceUnit(): BelongsTo
+    {
+        return $this->belongsTo(ServiceUnit::class, 'service_unit_id');
     }
 }

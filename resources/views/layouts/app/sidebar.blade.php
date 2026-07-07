@@ -78,9 +78,9 @@
                     <flux:sidebar.item icon="document-magnifying-glass" :href="route('system.logs.index')" :current="request()->routeIs('system.logs.*')" wire:navigate>
                         操作日志
                     </flux:sidebar.item>
-                    {{-- <flux:sidebar.item icon="adjustments-horizontal" :href="route('system.audit_configs.index')" :current="request()->routeIs('system.audit_configs.*')" wire:navigate>
+                    <flux:sidebar.item icon="adjustments-horizontal" :href="route('system.audit_configs.index')" :current="request()->routeIs('system.audit_configs.*')" wire:navigate>
                         审计配置
-                    </flux:sidebar.item> --}}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

@@ -38,6 +38,16 @@
                 @error('form.vendor_id') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
             </div>
             <div>
+                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">服务单位</label>
+                <select wire:model="form.service_unit_id" class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm">
+                    <option value="">-- 请选择服务单位 --</option>
+                    @foreach($serviceUnits as $su)
+                    <option value="{{ $su->id }}">{{ $su->name }}</option>
+                    @endforeach
+                </select>
+                @error('form.service_unit_id') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
+            </div>
+            <div>
                 <flux:select wire:model="form.contract_type" label="合同类型" required>
                     <option value="">请选择类型</option>
                     @foreach($contractTypeOptions as $code => $name)

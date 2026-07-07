@@ -68,12 +68,14 @@
                     @if(in_array('party_a_contact', $visibleColumns))<th class="px-4 py-3">甲方联系人</th>@endif
                     @if(in_array('party_a_phone', $visibleColumns))<th class="px-4 py-3">甲方电话</th>@endif
                     @if(in_array('party_b_name', $visibleColumns))<th class="px-4 py-3">乙方</th>@endif
+                    @if(in_array('party_b_manager', $visibleColumns))<th class="px-4 py-3">乙方管理人</th>@endif
                     @if(in_array('total_amount', $visibleColumns))<th class="px-4 py-3 text-right">合同金额</th>@endif
                     @if(in_array('signed_date', $visibleColumns))<th class="px-4 py-3">签订日期</th>@endif
                     @if(in_array('start_date', $visibleColumns))<th class="px-4 py-3">生效日期</th>@endif
                     @if(in_array('end_date', $visibleColumns))<th class="px-4 py-3">到期日期</th>@endif
                     @if(in_array('status', $visibleColumns))<th class="px-4 py-3">状态</th>@endif
                     @if(in_array('service_scope', $visibleColumns))<th class="px-4 py-3">服务范围</th>@endif
+                    @if(in_array('service_unit', $visibleColumns))<th class="px-4 py-3">服务单位</th>@endif
                     @if(in_array('managers', $visibleColumns))<th class="px-4 py-3">项目经理</th>@endif
                     @if(in_array('created_at', $visibleColumns))<th class="px-4 py-3">创建时间</th>@endif
                     <th class="px-4 py-3 text-center">操作</th>
@@ -88,6 +90,12 @@
                         @if(in_array('party_a_contact', $visibleColumns))<td class="px-4 py-3">{{ $contract->party_a_contact ?? '-' }}</td>@endif
                         @if(in_array('party_a_phone', $visibleColumns))<td class="px-4 py-3">{{ $contract->party_a_phone ?? '-' }}</td>@endif
                         @if(in_array('party_b_name', $visibleColumns))<td class="px-4 py-3">{{ $contract->party_b_name }}</td>@endif
+                        @if(in_array('party_b_manager', $visibleColumns))
+                            <td class="px-4 py-3">
+                                {{ $contract->party_b_manager_name ?? '-' }}
+                                @if($contract->party_b_manager_phone)<br><span class="text-xs text-zinc-400">{{ $contract->party_b_manager_phone }}</span>@endif
+                            </td>
+                        @endif
                         @if(in_array('total_amount', $visibleColumns))
                             <td class="px-4 py-3 text-right">
                                 @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'project_manager']) || auth()->user()->can_view_amounts)
@@ -120,6 +128,9 @@
                             <td class="px-4 py-3 max-w-xs truncate" title="{{ $contract->service_scope }}">
                                 {{ Str::limit($contract->service_scope, 30) ?? '-' }}
                             </td>
+                        @endif
+                        @if(in_array('service_unit', $visibleColumns))
+                            <td class="px-4 py-3">{{ $contract->serviceUnit?->name ?? '-' }}</td>
                         @endif
                         @if(in_array('managers', $visibleColumns))
                             <td class="px-4 py-3">

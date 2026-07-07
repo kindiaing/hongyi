@@ -40,6 +40,9 @@ class MainContractForm extends Component
             'form.party_a_contact' => 'nullable|string|max:100',
             'form.party_a_phone' => 'nullable|string|max:20',
             'form.party_b_name' => 'required|string|max:255',
+            'form.party_b_manager_name' => 'nullable|string|max:100',
+            'form.party_b_manager_phone' => 'nullable|string|max:20',
+            'form.service_unit_id' => 'nullable|integer|exists:service_units,id',
             'form.total_amount' => 'required|numeric|min:0',
             'form.signed_date' => 'nullable|date',
             'form.start_date' => 'required|date',
@@ -181,11 +184,13 @@ class MainContractForm extends Component
 
         // Available project managers: users with project_manager role
         $projectManagers = User::role('project_manager')->where('status', 1)->get();
+        $serviceUnits = \App\Models\ServiceUnit::orderBy('name')->get();
 
         return view('livewire.contract.main-contract-form', [
             'statusOptions' => $statusOptions,
             'attachments' => $attachments,
             'projectManagers' => $projectManagers,
+            'serviceUnits' => $serviceUnits,
         ]);
     }
 }
