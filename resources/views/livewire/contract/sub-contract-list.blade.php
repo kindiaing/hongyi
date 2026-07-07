@@ -69,6 +69,8 @@
                     @if(in_array('main_contract', $visibleColumns))<th class="px-4 py-3">关联主合同</th>@endif
                     @if(in_array('vendor', $visibleColumns))<th class="px-4 py-3">分包商</th>@endif
                     @if(in_array('contract_type', $visibleColumns))<th class="px-4 py-3">合同类型</th>@endif
+                    @if(in_array('maintenance_type', $visibleColumns))<th class="px-4 py-3">运维类型</th>@endif
+                    @if(in_array('project_level', $visibleColumns))<th class="px-4 py-3">项目层级</th>@endif
                     @if(in_array('sub_amount', $visibleColumns))<th class="px-4 py-3 text-right">分包金额</th>@endif
                     @if(in_array('signed_date', $visibleColumns))<th class="px-4 py-3">签订日期</th>@endif
                     @if(in_array('start_date', $visibleColumns))<th class="px-4 py-3">生效日期</th>@endif
@@ -91,6 +93,8 @@
                         @if(in_array('main_contract', $visibleColumns))<td class="px-4 py-3">{{ $contract->mainContract?->contract_name ?? '-' }}</td>@endif
                         @if(in_array('vendor', $visibleColumns))<td class="px-4 py-3">{{ $contract->vendor?->name ?? '-' }}</td>@endif
                         @if(in_array('contract_type', $visibleColumns))<td class="px-4 py-3">{{ $contract->contract_type }}</td>@endif
+                        @if(in_array('maintenance_type', $visibleColumns))<td class="px-4 py-3">{{ $maintenanceTypeOptions[$contract->maintenance_type] ?? $contract->maintenance_type ?? '-' }}</td>@endif
+                        @if(in_array('project_level', $visibleColumns))<td class="px-4 py-3">{{ $projectLevelOptions[$contract->project_level] ?? $contract->project_level ?? '-' }}</td>@endif
                         @if(in_array('sub_amount', $visibleColumns))
                             <td class="px-4 py-3 text-right">
                                 @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'project_manager']) || auth()->user()->can_view_amounts)

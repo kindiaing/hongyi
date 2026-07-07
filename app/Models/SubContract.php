@@ -21,6 +21,7 @@ class SubContract extends Model
         'service_unit_id',
         'contract_type',
         'maintenance_type',
+        'project_level',
         'sub_amount',
         'signed_date',
         'start_date',

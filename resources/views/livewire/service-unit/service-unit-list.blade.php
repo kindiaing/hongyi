@@ -4,10 +4,40 @@
             <flux:heading size="lg" level="1">服务单位管理</flux:heading>
             <flux:subheading>运维服务对应的服务单位信息管理</flux:subheading>
         </div>
-        <flux:button variant="primary" :href="route('service-units.create')" wire:navigate>
-            <flux:icon.plus class="size-4" /> 新增服务单位
-        </flux:button>
+        <div class="flex items-center gap-2">
+            <flux:button variant="ghost" size="sm" wire:click="$toggle('showExportPicker')">
+                <flux:icon.document-arrow-down class="size-4" /> 导出设置
+            </flux:button>
+            <flux:button variant="ghost" size="sm" wire:click="$toggle('showColumnPicker')">
+                <flux:icon.adjustments-horizontal class="size-4" /> 自定义列
+            </flux:button>
+            <flux:button variant="primary" :href="route('service-units.create')" wire:navigate>
+                <flux:icon.plus class="size-4" /> 新增服务单位
+            </flux:button>
+        </div>
     </div>
+
+    @if($showExportPicker)
+    <div class="rounded-md border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-900">
+        <div class="mb-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">选择要导出的列（默认全部）：</div>
+        <div class="flex flex-wrap gap-3 mb-4">
+            @foreach($availableColumns as $key => $col)
+                <label class="inline-flex items-center gap-2 rounded-md border border-zinc-200 px-3 py-1.5 dark:border-zinc-700 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                    <input type="checkbox" wire:model.live="exportColumns" value="{{ $key }}" class="rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500">
+                    <span class="text-sm">{{ $col['label'] }}</span>
+                </label>
+            @endforeach
+        </div>
+        <div class="flex gap-2">
+            <flux:button variant="primary" size="sm" wire:click="export('xlsx')">
+                <flux:icon.document-arrow-down class="size-4" /> 导出 Excel
+            </flux:button>
+            <flux:button variant="outline" size="sm" wire:click="export('csv')">
+                <flux:icon.document-text class="size-4" /> 导出 CSV
+            </flux:button>
+        </div>
+    </div>
+    @endif
 
     <div class="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
         <div class="flex flex-wrap items-end gap-4">
@@ -20,11 +50,6 @@
                 </flux:select>
             </div>
             <flux:button variant="ghost" wire:click="resetFilters" size="sm">重置</flux:button>
-            <div class="ml-auto">
-                <flux:button variant="ghost" size="sm" wire:click="$toggle('showColumnPicker')">
-                    <flux:icon.adjustments-horizontal class="size-4" /> 自定义列
-                </flux:button>
-            </div>
         </div>
 
         @if($showColumnPicker)
@@ -64,9 +89,10 @@
                     @if(in_array('address', $visibleColumns))<td class="px-4 py-3 max-w-xs truncate" title="{{ $unit->address }}">{{ Str::limit($unit->address, 20) ?? '-' }}</td>@endif
                     @if(in_array('primary_contact', $visibleColumns))
                     <td class="px-4 py-3">
-                        @php $primary = $unit->contacts->firstWhere('is_primary', true) ?? $unit->contacts->first(); @endphp
-                        @if($primary)
-                            {{ $primary->name }} {{ $primary->phone ? '('.$primary->phone.')' : '' }}
+                        @if($unit->primaryContact)
+                            {{ $unit->primaryContact->name }} {{ $unit->primaryContact->phone ? '('.$unit->primaryContact->phone.')' : '' }}
+                        @elseif($unit->contacts->first())
+                            {{ $unit->contacts->first()->name }} {{ $unit->contacts->first()->phone ? '('.$unit->contacts->first()->phone.')' : '' }}
                         @else
                             <span class="text-zinc-400">-</span>
                         @endif

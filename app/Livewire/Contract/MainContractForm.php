@@ -24,6 +24,8 @@ class MainContractForm extends Component
     public array $form = [];
     public array $selectedManagers = [];
     public bool $isEditing = false;
+    public string $searchServiceUnit = '';
+    public bool $showServiceUnitDropdown = false;
 
     #[Validate(['nullable', 'file', 'mimes:doc,docx', 'max:10240'])]
     public $wordFile = null;
@@ -64,6 +66,10 @@ class MainContractForm extends Component
             $contract = MainContract::findOrFail($id);
             $this->form = $contract->toArray();
             $this->selectedManagers = $contract->managers->pluck('user_id')->toArray();
+            if ($contract->service_unit_id) {
+                $su = \App\Models\ServiceUnit::find($contract->service_unit_id);
+                $this->searchServiceUnit = $su?->name ?? '';
+            }
         } else {
             $this->form = [
                 'contract_no' => 'MC-' . date('Y') . '-' . strtoupper(substr(uniqid(), -6)),
@@ -99,6 +105,26 @@ class MainContractForm extends Component
         }
 
         $this->redirect(route('contracts.main.index'), navigate: true);
+    }
+
+    public function selectServiceUnit(int $id): void
+    {
+        $this->form['service_unit_id'] = $id;
+        $su = \App\Models\ServiceUnit::find($id);
+        $this->searchServiceUnit = $su?->name ?? '';
+        $this->showServiceUnitDropdown = false;
+    }
+
+    public function clearServiceUnit(): void
+    {
+        $this->form['service_unit_id'] = null;
+        $this->searchServiceUnit = '';
+        $this->showServiceUnitDropdown = false;
+    }
+
+    public function toggleServiceUnitDropdown(): void
+    {
+        $this->showServiceUnitDropdown = !$this->showServiceUnitDropdown;
     }
 
     private function syncManagers(MainContract $contract): void

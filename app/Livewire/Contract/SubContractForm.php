@@ -28,6 +28,10 @@ class SubContractForm extends Component
     public array $selectedManagers = [];
     public array $selectedPersonnel = [];
     public bool $isEditing = false;
+    public string $searchVendor = '';
+    public bool $showVendorDropdown = false;
+    public string $searchServiceUnit = '';
+    public bool $showServiceUnitDropdown = false;
 
     #[Validate(['nullable', 'file', 'mimes:doc,docx', 'max:10240'])]
     public $wordFile = null;
@@ -44,6 +48,8 @@ class SubContractForm extends Component
             'form.vendor_id' => 'required|exists:vendors,id',
             'form.service_unit_id' => 'nullable|integer|exists:service_units,id',
             'form.contract_type' => 'required|string|max:50',
+            'form.maintenance_type' => 'nullable|string|max:50',
+            'form.project_level' => 'nullable|string|max:50',
             'form.sub_amount' => 'required|numeric|min:0',
             'form.signed_date' => 'nullable|date',
             'form.start_date' => 'required|date',
@@ -68,6 +74,14 @@ class SubContractForm extends Component
             $this->form = $contract->toArray();
             $this->selectedManagers = $contract->managers->pluck('user_id')->toArray();
             $this->selectedPersonnel = $contract->personnel->pluck('user_id')->toArray();
+            if ($contract->vendor_id) {
+                $v = Vendor::find($contract->vendor_id);
+                $this->searchVendor = $v?->name ?? '';
+            }
+            if ($contract->service_unit_id) {
+                $su = \App\Models\ServiceUnit::find($contract->service_unit_id);
+                $this->searchServiceUnit = $su?->name ?? '';
+            }
         } else {
             $this->form = [
                 'contract_no' => 'SC-' . date('Y') . '-' . strtoupper(substr(uniqid(), -6)),
@@ -106,6 +120,46 @@ class SubContractForm extends Component
         }
 
         $this->redirect(route('contracts.sub.index'), navigate: true);
+    }
+
+    public function selectVendor(int $id): void
+    {
+        $this->form['vendor_id'] = $id;
+        $v = Vendor::find($id);
+        $this->searchVendor = $v?->name ?? '';
+        $this->showVendorDropdown = false;
+    }
+
+    public function clearVendor(): void
+    {
+        $this->form['vendor_id'] = null;
+        $this->searchVendor = '';
+        $this->showVendorDropdown = false;
+    }
+
+    public function toggleVendorDropdown(): void
+    {
+        $this->showVendorDropdown = !$this->showVendorDropdown;
+    }
+
+    public function selectServiceUnit(int $id): void
+    {
+        $this->form['service_unit_id'] = $id;
+        $su = \App\Models\ServiceUnit::find($id);
+        $this->searchServiceUnit = $su?->name ?? '';
+        $this->showServiceUnitDropdown = false;
+    }
+
+    public function clearServiceUnit(): void
+    {
+        $this->form['service_unit_id'] = null;
+        $this->searchServiceUnit = '';
+        $this->showServiceUnitDropdown = false;
+    }
+
+    public function toggleServiceUnitDropdown(): void
+    {
+        $this->showServiceUnitDropdown = !$this->showServiceUnitDropdown;
     }
 
     private function syncManagers(SubContract $contract): void
@@ -185,6 +239,8 @@ class SubContractForm extends Component
     {
         $statusOptions = DataDictionary::where('category', 'contract_status')->pluck('name', 'code');
         $contractTypeOptions = DataDictionary::where('category', 'contract_type')->pluck('name', 'code');
+        $maintenanceTypeOptions = DataDictionary::where('category', 'maintenance_type')->pluck('name', 'code');
+        $projectLevelOptions = DataDictionary::where('category', 'project_level')->pluck('name', 'code');
         $mainContracts = MainContract::select('id', 'contract_name')->get();
         $vendors = Vendor::select('id', 'name')->where('cooperation_status', 1)->get();
 
@@ -208,6 +264,8 @@ class SubContractForm extends Component
         return view('livewire.contract.sub-contract-form', [
             'statusOptions' => $statusOptions,
             'contractTypeOptions' => $contractTypeOptions,
+            'maintenanceTypeOptions' => $maintenanceTypeOptions,
+            'projectLevelOptions' => $projectLevelOptions,
             'mainContracts' => $mainContracts,
             'vendors' => $vendors,
             'attachments' => $attachments,

@@ -8,6 +8,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\WithPagination;
 use App\Services\AuditLogService;
+use App\Services\ExcelExportService;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 #[Layout('layouts.app')]
 class ServiceUnitList extends Component
@@ -22,6 +24,10 @@ class ServiceUnitList extends Component
     public array $visibleColumns = [];
     public bool $showColumnPicker = false;
 
+    // Export fields selection
+    public array $exportColumns = [];
+    public bool $showExportPicker = false;
+
     public function mount(): void
     {
         $this->availableColumns = [
@@ -35,6 +41,8 @@ class ServiceUnitList extends Component
         ];
         $saved = session('service_unit_visible_columns');
         $this->visibleColumns = $saved ?: collect($this->availableColumns)->filter(fn($c) => $c['default'])->keys()->toArray();
+        // Default export all columns
+        $this->exportColumns = array_keys($this->availableColumns);
     }
 
     public function updatedVisibleColumns(): void
@@ -66,9 +74,54 @@ class ServiceUnitList extends Component
         }
     }
 
+    public function export(string $format = 'xlsx'): StreamedResponse
+    {
+        $q = ServiceUnit::query()->with(['contacts', 'primaryContact']);
+
+        // Data scope: service_unit role only sees their own
+        $user = auth()->user();
+        if ($user->hasRole('service_unit') && $user->service_unit_id) {
+            $q->where('id', $user->service_unit_id);
+        }
+
+        $units = $q->latest()->get();
+
+        // Build headers
+        $headers = [];
+        foreach ($this->exportColumns as $col) {
+            if (isset($this->availableColumns[$col])) {
+                $headers[$col] = $this->availableColumns[$col]['label'];
+            }
+        }
+
+        // Build rows
+        $rows = [];
+        foreach ($units as $unit) {
+            $row = [];
+            foreach (array_keys($headers) as $col) {
+                $row[$col] = match ($col) {
+                    'name' => $unit->name,
+                    'short_name' => $unit->short_name ?? '',
+                    'address' => $unit->address ?? '',
+                    'primary_contact' => $unit->primaryContact
+                        ? $unit->primaryContact->name . ($unit->primaryContact->phone ? " ({$unit->primaryContact->phone})" : '')
+                        : ($unit->contacts->first() ? $unit->contacts->first()->name . ($unit->contacts->first()->phone ? " ({$unit->contacts->first()->phone})" : '') : ''),
+                    'contact_count' => (string) $unit->contacts->count(),
+                    'status' => $unit->status ? '启用' : '停用',
+                    'created_at' => $unit->created_at->format('Y-m-d H:i'),
+                    default => '',
+                };
+            }
+            $rows[] = $row;
+        }
+
+        $filename = '服务单位_' . date('Ymd_His');
+        return ExcelExportService::export($headers, $rows, $filename, $format);
+    }
+
     public function render()
     {
-        $q = ServiceUnit::query()->with('contacts');
+        $q = ServiceUnit::query()->with(['contacts', 'primaryContact']);
         if ($this->search) {
             $q->where(function ($qq) {
                 $qq->where('name', 'like', "%{$this->search}%")

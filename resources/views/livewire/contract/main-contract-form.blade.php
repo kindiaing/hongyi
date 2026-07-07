@@ -33,14 +33,36 @@
             <div>
                 <flux:input wire:model="form.party_b_manager_phone" label="乙方管理人电话" placeholder="联系电话" />
             </div>
-            <div>
+            <div class="relative">
                 <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">服务单位</label>
-                <select wire:model="form.service_unit_id" class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm">
-                    <option value="">-- 请选择服务单位 --</option>
-                    @foreach($serviceUnits as $su)
-                    <option value="{{ $su->id }}">{{ $su->name }}</option>
-                    @endforeach
-                </select>
+                <div class="relative">
+                    <input
+                        type="text"
+                        wire:model.live.debounce.200ms="searchServiceUnit"
+                        wire:focus="showServiceUnitDropdown = true"
+                        class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm pr-8"
+                        placeholder="搜索服务单位..."
+                    />
+                    @if($searchServiceUnit || $form['service_unit_id'])
+                    <button type="button" wire:click="clearServiceUnit" class="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
+                        <flux:icon.x-mark class="size-4" />
+                    </button>
+                    @endif
+                </div>
+                @if($showServiceUnitDropdown)
+                <div class="absolute z-10 mt-1 w-full rounded-md bg-white dark:bg-zinc-900 shadow-lg border border-zinc-200 dark:border-zinc-700 max-h-60 overflow-y-auto">
+                    @php
+                        $filtered = $serviceUnits->filter(fn($su) => !$searchServiceUnit || str_contains(strtolower($su->name), strtolower($searchServiceUnit)));
+                    @endphp
+                    @forelse($filtered as $su)
+                        <div wire:click="selectServiceUnit({{ $su->id }})" class="cursor-pointer px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-sm {{ ($form['service_unit_id'] ?? null) == $su->id ? 'bg-indigo-50 text-indigo-600' : '' }}">
+                            {{ $su->name }}
+                        </div>
+                    @empty
+                        <div class="px-4 py-2 text-sm text-zinc-500">无匹配结果</div>
+                    @endforelse
+                </div>
+                @endif
                 @error('form.service_unit_id') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
             </div>
             <div>

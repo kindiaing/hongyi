@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ServiceUnit extends Model
 {
@@ -49,9 +50,9 @@ class ServiceUnit extends Model
         return $this->hasMany(ServiceUnitContact::class, 'service_unit_id')->orderBy('is_primary', 'desc');
     }
 
-    public function primaryContact(): BelongsTo
+    public function primaryContact(): HasOne
     {
-        return $this->belongsTo(ServiceUnitContact::class, 'id', 'service_unit_id')->where('is_primary', 1);
+        return $this->hasOne(ServiceUnitContact::class, 'service_unit_id')->where('is_primary', 1);
     }
 
     public function getStatusTextAttribute(): string

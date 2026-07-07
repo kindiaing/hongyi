@@ -30,7 +30,6 @@ class MainContract extends Model
         'payment_terms',
         'service_scope',
         'status',
-        'project_level',
         'attachment_visible',
         'remark',
         'created_by',

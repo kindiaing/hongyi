@@ -38,6 +38,8 @@ class SubContractList extends Component
             'main_contract' => ['label' => '关联主合同', 'default' => true],
             'vendor' => ['label' => '分包商', 'default' => true],
             'contract_type' => ['label' => '合同类型', 'default' => true],
+            'maintenance_type' => ['label' => '运维类型', 'default' => true],
+            'project_level' => ['label' => '项目层级', 'default' => true],
             'sub_amount' => ['label' => '分包金额', 'default' => true],
             'signed_date' => ['label' => '签订日期', 'default' => false],
             'start_date' => ['label' => '生效日期', 'default' => true],
@@ -126,12 +128,16 @@ class SubContractList extends Component
         $statusOptions = DataDictionary::where('category', 'contract_status')->pluck('name', 'code');
         $mainContracts = MainContract::select('id', 'contract_name')->get();
         $serviceUnits = \App\Models\ServiceUnit::orderBy('name')->get();
+        $maintenanceTypeOptions = DataDictionary::where('category', 'maintenance_type')->pluck('name', 'code');
+        $projectLevelOptions = DataDictionary::where('category', 'project_level')->pluck('name', 'code');
 
         return view('livewire.contract.sub-contract-list', [
             'contracts' => $contracts,
             'statusOptions' => $statusOptions,
             'mainContracts' => $mainContracts,
             'serviceUnits' => $serviceUnits,
+            'maintenanceTypeOptions' => $maintenanceTypeOptions,
+            'projectLevelOptions' => $projectLevelOptions,
         ]);
     }
 }

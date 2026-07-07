@@ -28,29 +28,90 @@
                 <flux:input wire:model="form.contract_name" label="合同名称" required />
                 @error('form.contract_name') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
             </div>
-            <div>
-                <flux:select wire:model="form.vendor_id" label="分包商" required>
-                    <option value="">请选择分包商</option>
-                    @foreach($vendors as $v)
-                        <option value="{{ $v->id }}">{{ $v->name }}</option>
-                    @endforeach
-                </flux:select>
+            <div class="relative">
+                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">分包商 <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <input
+                        type="text"
+                        wire:model.live.debounce.200ms="searchVendor"
+                        wire:focus="showVendorDropdown = true"
+                        class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm pr-8"
+                        placeholder="搜索分包商..."
+                    />
+                    @if($searchVendor || $form['vendor_id'])
+                    <button type="button" wire:click="clearVendor" class="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
+                        <flux:icon.x-mark class="size-4" />
+                    </button>
+                    @endif
+                </div>
+                @if($showVendorDropdown)
+                <div class="absolute z-10 mt-1 w-full rounded-md bg-white dark:bg-zinc-900 shadow-lg border border-zinc-200 dark:border-zinc-700 max-h-60 overflow-y-auto">
+                    @php
+                        $filteredVendors = $vendors->filter(fn($v) => !$searchVendor || str_contains(strtolower($v->name), strtolower($searchVendor)));
+                    @endphp
+                    @forelse($filteredVendors as $v)
+                        <div wire:click="selectVendor({{ $v->id }})" class="cursor-pointer px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-sm {{ ($form['vendor_id'] ?? null) == $v->id ? 'bg-indigo-50 text-indigo-600' : '' }}">
+                            {{ $v->name }}
+                        </div>
+                    @empty
+                        <div class="px-4 py-2 text-sm text-zinc-500">无匹配结果</div>
+                    @endforelse
+                </div>
+                @endif
                 @error('form.vendor_id') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
             </div>
-            <div>
+            <div class="relative">
                 <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">服务单位</label>
-                <select wire:model="form.service_unit_id" class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm">
-                    <option value="">-- 请选择服务单位 --</option>
-                    @foreach($serviceUnits as $su)
-                    <option value="{{ $su->id }}">{{ $su->name }}</option>
-                    @endforeach
-                </select>
+                <div class="relative">
+                    <input
+                        type="text"
+                        wire:model.live.debounce.200ms="searchServiceUnit"
+                        wire:focus="showServiceUnitDropdown = true"
+                        class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm pr-8"
+                        placeholder="搜索服务单位..."
+                    />
+                    @if($searchServiceUnit || $form['service_unit_id'])
+                    <button type="button" wire:click="clearServiceUnit" class="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
+                        <flux:icon.x-mark class="size-4" />
+                    </button>
+                    @endif
+                </div>
+                @if($showServiceUnitDropdown)
+                <div class="absolute z-10 mt-1 w-full rounded-md bg-white dark:bg-zinc-900 shadow-lg border border-zinc-200 dark:border-zinc-700 max-h-60 overflow-y-auto">
+                    @php
+                        $filteredSU = $serviceUnits->filter(fn($su) => !$searchServiceUnit || str_contains(strtolower($su->name), strtolower($searchServiceUnit)));
+                    @endphp
+                    @forelse($filteredSU as $su)
+                        <div wire:click="selectServiceUnit({{ $su->id }})" class="cursor-pointer px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-sm {{ ($form['service_unit_id'] ?? null) == $su->id ? 'bg-indigo-50 text-indigo-600' : '' }}">
+                            {{ $su->name }}
+                        </div>
+                    @empty
+                        <div class="px-4 py-2 text-sm text-zinc-500">无匹配结果</div>
+                    @endforelse
+                </div>
+                @endif
                 @error('form.service_unit_id') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
             </div>
             <div>
                 <flux:select wire:model="form.contract_type" label="合同类型" required>
                     <option value="">请选择类型</option>
                     @foreach($contractTypeOptions as $code => $name)
+                        <option value="{{ $code }}">{{ $name }}</option>
+                    @endforeach
+                </flux:select>
+            </div>
+            <div>
+                <flux:select wire:model="form.maintenance_type" label="运维类型">
+                    <option value="">请选择运维类型</option>
+                    @foreach($maintenanceTypeOptions as $code => $name)
+                        <option value="{{ $code }}">{{ $name }}</option>
+                    @endforeach
+                </flux:select>
+            </div>
+            <div>
+                <flux:select wire:model="form.project_level" label="项目层级">
+                    <option value="">请选择项目层级</option>
+                    @foreach($projectLevelOptions as $code => $name)
                         <option value="{{ $code }}">{{ $name }}</option>
                     @endforeach
                 </flux:select>
